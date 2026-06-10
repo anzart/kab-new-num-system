@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anggay amaynut n umḍan — Numération kabyle proposée</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=JetBrains+Mono:ital,wght@0,300..700;1,400&family=Noto+Sans+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080c11; --bg2:#0b1018; --panel:#0d141d; --panel2:#101a25;
+    --line:#1b2733; --line2:#243441;
+    --grid:rgba(86,182,200,0.05);
+    --text:#cdd8e1; --muted:#7a8c9d; --dim:#4c5d6c;
+    --amber:#f2b134; --amber-d:#b9892a;
+    --red:#e25540; --cyan:#56b6c8; --green:#6fbf8f;
+    --mono:'JetBrains Mono','Noto Sans Mono',ui-monospace,monospace;
+    --disp:'Bricolage Grotesque','Noto Sans Mono',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--mono); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      linear-gradient(var(--grid) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:28px 28px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hero .yaz{
+    position:absolute;right:-4vw;top:50%;transform:translateY(-50%);
+    font-family:var(--disp);font-weight:800;
+    font-size:46vw;line-height:1;color:var(--red);opacity:.05;
+    pointer-events:none;user-select:none;
+  }
+  .hero .wrap{padding:64px 22px 50px;position:relative}
+  .eyebrow{
+    font-size:12px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--amber);margin:0 0 18px;font-weight:600;
+  }
+  .eyebrow .tick{color:var(--dim)}
+  h1.title{
+    font-family:var(--disp);font-weight:700;line-height:1.02;
+    font-size:clamp(34px,6.2vw,68px);margin:0;letter-spacing:-.01em;
+    color:#eef4f8;
+  }
+  h1.title .kab{color:var(--amber);font-style:italic;font-weight:500}
+  .lede{
+    margin:22px 0 0;max-width:54ch;color:var(--muted);font-size:15px;
+  }
+  .meta-row{
+    display:flex;flex-wrap:wrap;gap:10px;margin-top:28px;
+  }
+  .chip{
+    font-size:11.5px;letter-spacing:.06em;color:var(--muted);
+    border:1px solid var(--line2);border-radius:2px;padding:5px 9px;
+    background:rgba(16,26,37,.5);
+  }
+  .chip b{color:var(--text);font-weight:600}
+
+  /* ---------- CONVERTER ---------- */
+  .conv{
+    margin-top:38px;border:1px solid var(--line2);background:var(--panel);
+    border-radius:4px;overflow:hidden;
+  }
+  .conv-head{
+    display:flex;align-items:center;gap:10px;padding:11px 16px;
+    border-bottom:1px solid var(--line);background:var(--panel2);
+    font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+  }
+  .conv-head .dot{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:14px 0 0 var(--amber),28px 0 0 var(--green)}
+  .conv-head .lbl{margin-left:34px}
+  .conv-body{padding:20px 16px}
+  .conv-input{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .conv input[type=text]{
+    flex:1 1 220px;min-width:0;background:var(--bg);color:var(--amber);
+    border:1px solid var(--line2);border-radius:3px;padding:13px 14px;
+    font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:.02em;
+  }
+  .conv input[type=text]:focus{outline:none;border-color:var(--amber-d)}
+  .gender{display:inline-flex;border:1px solid var(--line2);border-radius:3px;overflow:hidden}
+  .gender button{
+    background:var(--bg);color:var(--muted);border:0;padding:13px 15px;
+    font-family:var(--mono);font-size:13px;cursor:pointer;letter-spacing:.05em;
+  }
+  .gender button.on{background:var(--amber);color:#10161d;font-weight:700}
+  .conv-out{
+    margin-top:18px;padding:18px 16px;border:1px dashed var(--line2);
+    border-radius:3px;background:rgba(11,16,24,.6);min-height:64px;
+  }
+  .conv-out .kab{
+    font-family:var(--disp);font-weight:600;color:#f3f7fa;
+    font-size:clamp(20px,3.4vw,30px);line-height:1.2;word-break:break-word;
+  }
+  .conv-out .kab.err{color:var(--red);font-family:var(--mono);font-size:15px;font-weight:400}
+  .breakdown{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .bd{font-size:12px;border:1px solid var(--line2);border-radius:2px;padding:4px 9px;color:var(--muted);background:var(--panel2)}
+  .bd b{color:var(--cyan);font-weight:600}
+  .bd .arw{color:var(--dim);margin:0 5px}
+  .bd em{color:var(--text);font-style:normal}
+  .examples{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .examples span{font-size:11px;color:var(--dim);margin-right:2px;align-self:center}
+  .examples button{
+    background:transparent;border:1px solid var(--line);color:var(--muted);
+    font-family:var(--mono);font-size:12px;padding:4px 9px;border-radius:2px;cursor:pointer;
+  }
+  .examples button:hover{border-color:var(--amber-d);color:var(--amber)}
+
+  /* ---------- NAV ---------- */
+  nav.toc{
+    border-bottom:1px solid var(--line);background:rgba(8,12,17,.86);
+    backdrop-filter:blur(6px);position:sticky;top:0;z-index:20;
+  }
+  nav.toc .wrap{display:flex;gap:6px;overflow-x:auto;padding:10px 22px;scrollbar-width:thin}
+  nav.toc a{
+    color:var(--muted);text-decoration:none;font-size:12px;white-space:nowrap;
+    padding:5px 9px;border-radius:2px;letter-spacing:.04em;
+  }
+  nav.toc a:hover{color:var(--amber);background:var(--panel)}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:52px 0;border-bottom:1px solid var(--line)}
+  .sec-eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--amber);margin:0 0 6px;display:flex;align-items:baseline;gap:12px;
+  }
+  .sec-eyebrow .num{color:var(--red);font-weight:700}
+  h2.sec{
+    font-family:var(--disp);font-weight:600;font-size:clamp(24px,3.6vw,34px);
+    margin:0 0 8px;color:#eef4f8;letter-spacing:-.01em;
+  }
+  .sec-note{color:var(--muted);max-width:66ch;margin:0 0 22px;font-size:14px}
+  .sec-note code, .sec-note b{color:var(--text)}
+
+  .rule{
+    border-left:2px solid var(--amber);background:var(--panel);
+    padding:12px 16px;margin:0 0 22px;border-radius:0 3px 3px 0;font-size:13.5px;color:var(--muted);
+  }
+  .rule b{color:var(--amber)}
+  .rule code{color:var(--cyan)}
+
+  /* ---------- TABLES ---------- */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:4px;margin:0 0 14px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:480px}
+  caption{caption-side:top;text-align:left;color:var(--dim);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;padding:10px 14px 0}
+  th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line)}
+  thead th{
+    background:var(--panel2);color:var(--cyan);font-weight:600;
+    letter-spacing:.05em;border-bottom:1px solid var(--line2);
+    position:sticky;top:0;font-size:12px;text-transform:uppercase;
+  }
+  tbody tr:hover{background:rgba(16,26,37,.4)}
+  td.n{color:var(--amber);font-weight:600;width:1%;white-space:nowrap}
+  td.kab{font-family:var(--disp);font-weight:600;color:#eef4f8;font-size:15px}
+  td.kabr{font-family:var(--disp);font-weight:600;color:var(--red);font-size:15px}
+  td.mut{color:var(--muted)}
+  td .just{color:var(--dim);font-size:12px}
+  tbody tr:last-child td{border-bottom:0}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:640px){.two-col{grid-template-columns:1fr}}
+
+  .annex h2.sec{color:var(--cyan)}
+  .annex .sec-eyebrow{color:var(--cyan)}
+  .annex .sec-eyebrow .num{color:var(--dim)}
+
+  footer{padding:40px 0 70px;color:var(--dim);font-size:12.5px}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;align-items:center}
+  footer a{color:var(--muted)}
+
+  .reveal{opacity:0;transform:translateY(12px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="yaz" aria-hidden="true">ⵣ</div>
+  <div class="wrap">
+    <p class="eyebrow">Tasnukyest n umḍan <span class="tick">/</span> Système de numération · taqbaylit</p>
+    <h1 class="title">Compter en kabyle,<br><span class="kab">d anggay amaynut</span></h1>
+    <p class="lede">Proposition complète d'un système de numération amazigh pour le kabyle&nbsp;: régulier, transparent et invariable. Des unités aux milliards, plus ordinaux, multiplicatifs, collectifs, fractions, âges, préfixes et bases informatiques.</p>
+    <div class="meta-row">
+      <span class="chip"><b>0 → 10⁹</b> cardinaux</span>
+      <span class="chip"><b>1</b> mot par nombre, le plus souvent</span>
+      <span class="chip">racines <b>panberbères</b></span>
+      <span class="chip">invariable au-delà de <b>9</b></span>
+    </div>
+
+    <!-- SIGNATURE: converter -->
+    <div class="conv" id="convertisseur">
+      <div class="conv-head">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="lbl">amḍan → taqbaylit · convertisseur</span>
+      </div>
+      <div class="conv-body">
+        <div class="conv-input">
+          <input id="numin" type="text" inputmode="numeric" autocomplete="off" value="2842" aria-label="Nombre à convertir">
+          <div class="gender" role="group" aria-label="Genre">
+            <button id="gm" class="on" type="button">m. ⟶ yiwen</button>
+            <button id="gf" type="button">f. ⟶ yiwet</button>
+          </div>
+        </div>
+        <div class="conv-out">
+          <div class="kab" id="kabout">—</div>
+          <div class="breakdown" id="bd"></div>
+        </div>
+        <div class="examples">
+          <span>essayer :</span>
+          <button type="button" data-n="9">9</button>
+          <button type="button" data-n="17">17</button>
+          <button type="button" data-n="68">68</button>
+          <button type="button" data-n="100">100</button>
+          <button type="button" data-n="1950">1950</button>
+          <button type="button" data-n="12530">12530</button>
+          <button type="button" data-n="2000842">2000842</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sommaire">
+  <div class="wrap">
+    <a href="#contexte">00 · Contexte</a>
+    <a href="#unites">01 · 0–10</a>
+    <a href="#teens">02 · 11–19</a>
+    <a href="#dizaines">03 · Dizaines</a>
+    <a href="#vingtun">04 · 21–99</a>
+    <a href="#grands">05 · Grands nombres</a>
+    <a href="#exemples">06 · Exemples</a>
+    <a href="#ordinaux">07 · Ordinaux</a>
+    <a href="#multi">08 · Multiplicatifs</a>
+    <a href="#collectifs">09 · Collectifs</a>
+    <a href="#fractions">10 · Fractions</a>
+    <a href="#ages">11 · Âges</a>
+    <a href="#prefixes">12 · Préfixes</a>
+    <a href="#codage">13 · Codage</a>
+    <a href="#annexes">Annexes</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- 00 -->
+<section id="contexte" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">00</span> Tin iqqaren <span style="color:var(--dim)">/</span> Le constat &amp; les objectifs</p>
+    <h2 class="sec">D'où l'on part, où l'on va</h2>
+    <p class="sec-note">En kabyle usuel, seuls <b>1 (yiwen / yiwet)</b> et <b>2 (sin / snat)</b> sont d'origine amazighe&nbsp;; tous les autres nombres sont empruntés à l'arabe (3&nbsp;tlata, 4&nbsp;ṛebɛa, 5&nbsp;xemsa…). La proposition ravive les racines berbères et bâtit un système complet de 1 à 100 puis au-delà.</p>
+    <div class="two-col">
+      <div class="rule">
+        <b>Objectifs.</b><br>
+        — S'inspirer du comptage des autres parlers berbères.<br>
+        — Construire un système simple, flexible et régulier.<br>
+        — Couvrir 1→100, puis centaines, milliers, millions, milliards.
+      </div>
+      <div class="rule" style="border-color:var(--red)">
+        <b style="color:var(--red)">Principes.</b><br>
+        <b style="color:var(--red)">P1</b> racines panberbères, pas d'emprunts arabes.<br>
+        <b style="color:var(--red)">P2</b> transparence&nbsp;: chaque nombre reste rattachable à sa racine.<br>
+        <b style="color:var(--red)">P3</b> invariabilité m./f. au-delà de 9.<br>
+        <b style="color:var(--red)">P4</b> un nombre = un seul mot quand c'est possible.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 01 -->
+<section id="unites" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">01</span> Iferdisen <span style="color:var(--dim)">/</span> Unités</p>
+    <h2 class="sec">Cardinaux de 0 à 10</h2>
+    <p class="sec-note">Le genre (masculin / féminin) est conservé de 0 à 10. La proposition simplifie deux formes de l'état de l'art berbère.</p>
+    <div class="rule">
+      <b>Simplifications.</b> au lieu de <code>ukuẓ</code> (4) → <code>kuẓ</code> ; au lieu de <code>ṭam</code> (8) → <code>tam</code>.
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Num.</th><th>Masculin</th><th>Féminin</th></tr></thead>
+        <tbody>
+          <tr><td class="n">0</td><td class="kab">ilem <span class="just">(ulac)</span></td><td class="kabr">ilem</td></tr>
+          <tr><td class="n">1</td><td class="kab">yiwen</td><td class="kabr">yiwet</td></tr>
+          <tr><td class="n">2</td><td class="kab">sin</td><td class="kabr">snat</td></tr>
+          <tr><td class="n">3</td><td class="kab">kṛaḍ</td><td class="kabr">kṛaḍet</td></tr>
+          <tr><td class="n">4</td><td class="kab">kuẓ</td><td class="kabr">kuẓet</td></tr>
+          <tr><td class="n">5</td><td class="kab">semmus</td><td class="kabr">semmuset</td></tr>
+          <tr><td class="n">6</td><td class="kab">sḍis</td><td class="kabr">sḍiset</td></tr>
+          <tr><td class="n">7</td><td class="kab">sa</td><td class="kabr">sat</td></tr>
+          <tr><td class="n">8</td><td class="kab">tam</td><td class="kabr">tamet</td></tr>
+          <tr><td class="n">9</td><td class="kab">tẓa</td><td class="kabr">tẓat</td></tr>
+          <tr><td class="n">10</td><td class="kab">mraw</td><td class="kabr">mrawet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section id="teens" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">02</span> Seg 11 ar 19 <span style="color:var(--dim)">/</span> Les « teens »</p>
+    <h2 class="sec">Onze à dix-neuf — un mot unique</h2>
+    <p class="sec-note">Pour éviter l'écriture lourde (« Mraw d sḍis / Mraw d sḍist »), on associe à chaque nombre <b>un seul mot invariable</b> qui garde la trace du numéral, comme l'anglais ou l'allemand. Construction&nbsp;: préfixe <code>mr-</code> (de <i>mraw</i>) + racine de l'unité.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Num.</th><th>Proposition (m. = f.)</th><th>Décomposition</th></tr></thead>
+        <tbody>
+          <tr><td class="n">10</td><td class="kab">mraw</td><td class="mut">—</td></tr>
+          <tr><td class="n">11</td><td class="kab">mrayan</td><td class="mut">mr- + (y)an</td></tr>
+          <tr><td class="n">12</td><td class="kab">mrasin</td><td class="mut">mr- + sin</td></tr>
+          <tr><td class="n">13</td><td class="kab">mrakraḍ</td><td class="mut">mr- + kraḍ</td></tr>
+          <tr><td class="n">14</td><td class="kab">mrakuẓ</td><td class="mut">mr- + kuẓ</td></tr>
+          <tr><td class="n">15</td><td class="kab">mrasmus</td><td class="mut">mr- + smus</td></tr>
+          <tr><td class="n">16</td><td class="kab">mrasḍis</td><td class="mut">mr- + sḍis</td></tr>
+          <tr><td class="n">17</td><td class="kab">mrasa</td><td class="mut">mr- + sa</td></tr>
+          <tr><td class="n">18</td><td class="kab">mratam</td><td class="mut">mr- + tam</td></tr>
+          <tr><td class="n">19</td><td class="kab">mratẓa</td><td class="mut">mr- + tẓa</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section id="dizaines" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">03</span> Imrawen <span style="color:var(--dim)">/</span> Dizaines</p>
+    <h2 class="sec">Dizaines de 10 à 90</h2>
+    <p class="sec-note">Proposition inspirée des annexes de « l'officiel des prénoms berbères » (2003). Construction&nbsp;: racine de l'unité + suffixe <code>-an</code> (10 = <i>mraw</i>, irrégulier). Mot unique, invariable.</p>
+    <div class="two-col">
+      <div class="tbl-wrap">
+        <table>
+          <caption>Proposition</caption>
+          <thead><tr><th>Num.</th><th>Kabyle</th></tr></thead>
+          <tbody>
+            <tr><td class="n">10</td><td class="kab">mraw</td></tr>
+            <tr><td class="n">20</td><td class="kab">snan</td></tr>
+            <tr><td class="n">30</td><td class="kab">kṛaḍan</td></tr>
+            <tr><td class="n">40</td><td class="kab">kuẓan</td></tr>
+            <tr><td class="n">50</td><td class="kab">smusan</td></tr>
+            <tr><td class="n">60</td><td class="kab">sḍisan</td></tr>
+            <tr><td class="n">70</td><td class="kab">sayan</td></tr>
+            <tr><td class="n">80</td><td class="kab">taman</td></tr>
+            <tr><td class="n">90</td><td class="kab">tẓayan</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <caption>Pour mémoire — emprunts arabes actuels</caption>
+          <thead><tr><th>Num.</th><th>Kabyle usuel</th></tr></thead>
+          <tbody>
+            <tr><td class="n">10</td><td class="mut">ɛecṛa</td></tr>
+            <tr><td class="n">20</td><td class="mut">ɛecṛin</td></tr>
+            <tr><td class="n">30</td><td class="mut">tlatin</td></tr>
+            <tr><td class="n">40</td><td class="mut">ṛevɛin</td></tr>
+            <tr><td class="n">50</td><td class="mut">xemsin</td></tr>
+            <tr><td class="n">60</td><td class="mut">settin</td></tr>
+            <tr><td class="n">70</td><td class="mut">sevɛin</td></tr>
+            <tr><td class="n">80</td><td class="mut">tmanyin</td></tr>
+            <tr><td class="n">90</td><td class="mut">tesɛin</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="sec-note" style="font-size:12.5px;color:var(--dim)">Variante orthographique notée dans les diapos&nbsp;: 50 apparaît parfois en <i>semmusan</i> (forme pleine) au lieu de <i>smusan</i> ; 30 en <i>kraḍan</i> au lieu de <i>kṛaḍan</i>. Ici on retient les formes des tableaux de référence.</p>
+  </div>
+</section>
+
+<!-- 04 -->
+<section id="vingtun" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">04</span> Seg 21 ar 99 <span style="color:var(--dim)">/</span> Composés</p>
+    <h2 class="sec">Vingt-et-un à quatre-vingt-dix-neuf</h2>
+    <p class="sec-note">Construction&nbsp;: <b>dizaine + unité</b>, sans la préposition « d ». Le genre n'apparaît que sur l'unité finale (1–9). Modèle&nbsp;: <code>&lt;dizaine&gt; &lt;unité&gt;</code> — ex. 47 = <i>sayan sa</i>, 68 = <i>sḍisan tam</i>.</p>
+    <div class="two-col">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Num.</th><th>Proposition</th></tr></thead>
+          <tbody>
+            <tr><td class="n">21</td><td class="kab">snan yiwen</td></tr>
+            <tr><td class="n">22</td><td class="kab">snan sin</td></tr>
+            <tr><td class="n">23</td><td class="kab">snan kraḍ</td></tr>
+            <tr><td class="n">24</td><td class="kab">snan kuẓ</td></tr>
+            <tr><td class="n">25</td><td class="kab">snan semmus</td></tr>
+            <tr><td class="n">26</td><td class="kab">snan sḍis</td></tr>
+            <tr><td class="n">27</td><td class="kab">snan sa</td></tr>
+            <tr><td class="n">28</td><td class="kab">snan tam</td></tr>
+            <tr><td class="n">29</td><td class="kab">snan tẓa</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Num.</th><th>Proposition</th></tr></thead>
+          <tbody>
+            <tr><td class="n">90</td><td class="kab">tẓayan</td></tr>
+            <tr><td class="n">91</td><td class="kab">tẓayan yiwen</td></tr>
+            <tr><td class="n">92</td><td class="kab">tẓayan sin</td></tr>
+            <tr><td class="n">93</td><td class="kab">tẓayan kraḍ</td></tr>
+            <tr><td class="n">94</td><td class="kab">tẓayan kuẓ</td></tr>
+            <tr><td class="n">95</td><td class="kab">tẓayan semmus</td></tr>
+            <tr><td class="n">96</td><td class="kab">tẓayan sḍis</td></tr>
+            <tr><td class="n">97</td><td class="kab">tẓayan sa</td></tr>
+            <tr><td class="n">98</td><td class="kab">tẓayan tam</td></tr>
+            <tr><td class="n">99</td><td class="kab">tẓayan tẓa</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 -->
+<section id="grands" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">05</span> Imḍanen meqqren <span style="color:var(--dim)">/</span> Grands nombres</p>
+    <h2 class="sec">Centaines, milliers, millions, milliards</h2>
+    <p class="sec-note">Inspiré de la forme <b>timiḍi</b> (attestée en touareg, zénaga, tachelhit médiéval), simplifiée pour des raisons euphoniques. <span style="color:var(--dim)">Rmq.&nbsp;: <i>tawinest</i> = « cercle » en mathématiques.</span></p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Chiffre</th><th>Lettres</th><th>Singulier</th><th>Pluriel</th></tr></thead>
+        <tbody>
+          <tr><td class="n">100</td><td class="mut">imiḍi</td><td class="kab">imdi</td><td class="kabr">imda</td></tr>
+          <tr><td class="n">1 000</td><td class="mut">agim</td><td class="kab">agim</td><td class="kabr">igiman</td></tr>
+          <tr><td class="n">1 000 000</td><td class="mut">amelyun</td><td class="kab">amelyun</td><td class="kabr">imelyunen</td></tr>
+          <tr><td class="n">1 000 000 000</td><td class="mut">amelyar</td><td class="kab">amelyar</td><td class="kabr">imelyaren</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="rule">
+      <b>Composition.</b>
+      centaines&nbsp;: <code>n × 100 = &lt;n&gt; imda</code> (800 = <i>tam imda</i>) ; 100 isolé = <i>imdi</i>. ·
+      milliers&nbsp;: 1000 = <i>agim</i>, <code>n × 1000 = &lt;n&gt; igiman</code>. ·
+      ordre&nbsp;: magnitudes décroissantes, séparées par une espace, <b>sans connecteur</b>.
+    </div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section id="exemples" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">06</span> Imedyaten <span style="color:var(--dim)">/</span> Exemples</p>
+    <h2 class="sec">Mise en composition</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Nombre</th><th>Français</th><th>Kabyle</th></tr></thead>
+        <tbody>
+          <tr><td class="n">1950</td><td class="mut">mille neuf cent cinquante</td><td class="kab">Agim tẓa imda semmusan</td></tr>
+          <tr><td class="n">1950</td><td class="mut">« dix-neuf cent cinquante » (nineteen-fifty)</td><td class="kab">Mratẓa semmusan</td></tr>
+          <tr><td class="n">2842</td><td class="mut">deux mille huit cent quarante-deux</td><td class="kab">Sin igiman tam imda kuẓan sin</td></tr>
+          <tr><td class="n">12530</td><td class="mut">douze mille cinq cent trente</td><td class="kab">Mrasin igiman semmus imda kraḍan</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sec-note" style="font-size:12.5px;color:var(--dim)">Les diapos d'exemples écrivent <i>semmusan</i> (50) et <i>kraḍan</i> (30) ; le convertisseur en haut utilise les formes des tableaux de référence (<i>smusan</i>, <i>kṛaḍan</i>).</p>
+  </div>
+</section>
+
+<!-- 07 -->
+<section id="ordinaux" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">07</span> Uṭṭunen n usemqen <span style="color:var(--dim)">/</span> Ordinaux</p>
+    <h2 class="sec">Ordinaux</h2>
+    <p class="sec-note">Construction&nbsp;: <code>Wiss</code> (m.) / <code>Tiss</code> (f.) + cardinal. On garde le féminin jusqu'à 9 ; au-delà, une seule forme invariable.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Français</th><th>Masculin</th><th>Féminin</th></tr></thead>
+        <tbody>
+          <tr><td class="mut">premier/ère</td><td class="kab">amezwaru, amenzu</td><td class="kabr">tamezwarut / tamenzut</td></tr>
+          <tr><td class="mut">deuxième</td><td class="kab">wiss sin</td><td class="kabr">tiss snat</td></tr>
+          <tr><td class="mut">troisième</td><td class="kab">wiss kṛad</td><td class="kabr">tiss kṛadet</td></tr>
+          <tr><td class="mut">quatrième</td><td class="kab">wiss kuẓ</td><td class="kabr">tiss kuẓet</td></tr>
+          <tr><td class="mut">cinquième</td><td class="kab">wiss semmus</td><td class="kabr">tiss semmuset</td></tr>
+          <tr><td class="mut">sixième</td><td class="kab">wiss sḍis</td><td class="kabr">tiss sḍiset</td></tr>
+          <tr><td class="mut">septième</td><td class="kab">wiss sa</td><td class="kabr">tiss sat</td></tr>
+          <tr><td class="mut">huitième</td><td class="kab">wiss tam</td><td class="kabr">tiss tamet</td></tr>
+          <tr><td class="mut">neuvième</td><td class="kab">wiss tẓa</td><td class="kabr">tiss tẓat</td></tr>
+          <tr><td class="mut">dixième</td><td class="kab">wiss mraw</td><td class="kabr">tiss mrawet</td></tr>
+          <tr><td class="mut">onzième</td><td class="kab">wiss mrayan</td><td class="kabr">tiss mrayan</td></tr>
+          <tr><td class="mut">douzième</td><td class="kab">wiss mrasin</td><td class="kabr">tiss mrasin</td></tr>
+          <tr><td class="mut">treizième</td><td class="kab">wiss mrakraḍ</td><td class="kabr">tiss mrakraḍ</td></tr>
+          <tr><td class="mut">quatorzième</td><td class="kab">wiss mrakuẓ</td><td class="kabr">tiss mrakuẓ</td></tr>
+          <tr><td class="mut">quinzième</td><td class="kab">wiss mrasmus</td><td class="kabr">tiss mrasmus</td></tr>
+          <tr><td class="mut">au-delà</td><td class="kab">wiss &lt;cardinal&gt;</td><td class="kabr">tiss &lt;cardinal&gt; (invariable)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 08 -->
+<section id="multi" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">08</span> Asegget <span style="color:var(--dim)">/</span> Multiplicatifs</p>
+    <h2 class="sec">Multiplicatifs</h2>
+    <p class="sec-note">Le verbe (<i>amyag</i>) « multiplier par N », puis deux formes nominales possibles&nbsp;: <code>as- + cardinal</code> ou <code>cardinal + -gat</code>.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Verbe FR (nom)</th><th>Amyag</th><th>Prop. 1 (as+card.)</th><th>Prop. 2 (card.+gat)</th></tr></thead>
+        <tbody>
+          <tr><td class="mut">doubler (double)</td><td class="kab">sinnen / ssinen</td><td class="kab">asinan</td><td class="kabr">asnigat</td></tr>
+          <tr><td class="mut">tripler (triple)</td><td class="kab">sekṛed</td><td class="kab">asikraḍ</td><td class="kabr">akrigat</td></tr>
+          <tr><td class="mut">quadrupler</td><td class="kab">skeẓ</td><td class="kab">asikaẓ</td><td class="kabr">akẓigat</td></tr>
+          <tr><td class="mut">quintupler</td><td class="kab">smusey</td><td class="kab">asimus</td><td class="kabr">asmigat</td></tr>
+          <tr><td class="mut">sextupler</td><td class="kab">sesḍes</td><td class="kab">asisḍes</td><td class="kabr">asḍigat</td></tr>
+          <tr><td class="mut">septupler</td><td class="kab">sessay</td><td class="kab">asisay</td><td class="kabr">asigat</td></tr>
+          <tr><td class="mut">octupler</td><td class="kab">stem</td><td class="kab">asitam</td><td class="kabr">atmigat</td></tr>
+          <tr><td class="mut">nonupler</td><td class="kab">setẓey</td><td class="kab">asitẓay</td><td class="kabr">atẓigat</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section id="collectifs" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">09</span> Igrawen <span style="color:var(--dim)">/</span> Collectifs</p>
+    <h2 class="sec">Collectifs (« une dizaine », « une douzaine »…)</h2>
+    <p class="sec-note">Construction&nbsp;: <code>ta- + racine de la dizaine + -t</code> (schéma <i>ta…ant</i>).</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Français</th><th>Anglais</th><th>Taqbaylit</th><th>Justification</th></tr></thead>
+        <tbody>
+          <tr><td class="mut">dizaine</td><td class="mut">ten / dozen</td><td class="kab">tamrawt</td><td class="just">de mraw : 10</td></tr>
+          <tr><td class="mut">douzaine</td><td class="mut">dozen</td><td class="kab">tamrasint</td><td class="just">de mrasin : 12</td></tr>
+          <tr><td class="mut">vingtaine</td><td class="mut">twenty / score</td><td class="kab">tasnant</td><td class="just">de snan : 20</td></tr>
+          <tr><td class="mut">trentaine</td><td class="mut">thirty</td><td class="kab">takraḍant</td><td class="just">de kraḍan : 30</td></tr>
+          <tr><td class="mut">quarantaine</td><td class="mut">forty</td><td class="kab">takuẓant</td><td class="just">de kuẓan : 40</td></tr>
+          <tr><td class="mut">cinquantaine</td><td class="mut">fifty</td><td class="kab">tasmusant</td><td class="just">de smusan : 50</td></tr>
+          <tr><td class="mut">soixantaine</td><td class="mut">sixty</td><td class="kab">tasḍisant</td><td class="just">de sḍisan : 60</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="fractions" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">10</span> Tigzumin <span style="color:var(--dim)">/</span> Fractions</p>
+    <h2 class="sec">Fractions</h2>
+    <p class="sec-note">Proposition&nbsp;: <code>af- + cardinal</code> (singulier) ; pluriel en <i>i…a…</i>.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Français</th><th>Taqbaylit usuel</th><th>Proposition</th><th>Pluriel</th></tr></thead>
+        <tbody>
+          <tr><td class="mut">un demi (1/2)</td><td class="mut">azgen, nnefṣ</td><td class="kab">azgen</td><td class="kabr">izegnan</td></tr>
+          <tr><td class="mut">un tiers (1/3)</td><td class="mut">tis tlata</td><td class="kab">afkṛad</td><td class="kabr">ifekṛad</td></tr>
+          <tr><td class="mut">un quart (1/4)</td><td class="mut">tis ṛebɛa, taṛbaɛt</td><td class="kab">afkuẓ</td><td class="kabr">ifkaẓ</td></tr>
+          <tr><td class="mut">un cinquième</td><td class="mut">tis xemsa</td><td class="kab">afsemmus / afesmus</td><td class="kabr">ifesmas</td></tr>
+          <tr><td class="mut">un sixième</td><td class="mut">tis setta</td><td class="kab">afsḍis</td><td class="kabr">ifesḍas</td></tr>
+          <tr><td class="mut">un septième</td><td class="mut">tis sebɛa</td><td class="kab">afsa</td><td class="kabr">ifsaten</td></tr>
+          <tr><td class="mut">un huitième</td><td class="mut">tis tmanya</td><td class="kab">aftam</td><td class="kabr">iftamen</td></tr>
+          <tr><td class="mut">un neuvième</td><td class="mut">tis tesɛa</td><td class="kab">afṭza</td><td class="kabr">iftaẓen</td></tr>
+          <tr><td class="mut">trois demis (3/2)</td><td class="mut">tlata lenfaṣ, tlata izegnan</td><td class="kab">kṛad izegnan</td><td class="mut">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section id="ages" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">11</span> Leɛmer <span style="color:var(--dim)">/</span> Âges</p>
+    <h2 class="sec">Âges (« trentenaire », « centenaire »…)</h2>
+    <p class="sec-note">Construction&nbsp;: masculin <code>a- + dizaine</code> ; féminin <code>ta- + … + -t</code> (schéma <i>ta…ant</i>).</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Tranche</th><th>Français</th><th>Taqbaylit (m.)</th><th>Féminin</th><th>Justif.</th></tr></thead>
+        <tbody>
+          <tr><td class="n">10–19</td><td class="mut">adolescent / ado</td><td class="kab">acawrar</td><td class="mut">—</td><td class="just">teen</td></tr>
+          <tr><td class="n">20–29</td><td class="mut">vingtenaire</td><td class="kab">asnan</td><td class="kabr">tasnant</td><td class="just">snan : 20</td></tr>
+          <tr><td class="n">30–39</td><td class="mut">trentenaire</td><td class="kab">akraḍan</td><td class="kabr">takraḍant</td><td class="just">kraḍan : 30</td></tr>
+          <tr><td class="n">40–49</td><td class="mut">quadragénaire</td><td class="kab">akuẓan</td><td class="kabr">takuẓant</td><td class="just">kuẓan : 40</td></tr>
+          <tr><td class="n">50–59</td><td class="mut">quinquagénaire</td><td class="kab">asmusan</td><td class="kabr">tasmusant</td><td class="just">smusan : 50</td></tr>
+          <tr><td class="n">60–69</td><td class="mut">sexagénaire</td><td class="kab">asḍisan</td><td class="kabr">tasḍisant</td><td class="just">sḍisan : 60</td></tr>
+          <tr><td class="n">70–79</td><td class="mut">septuagénaire</td><td class="kab">asayan</td><td class="kabr">tasayant</td><td class="just">sayan : 70</td></tr>
+          <tr><td class="n">80–89</td><td class="mut">octogénaire</td><td class="kab">ataman</td><td class="kabr">tatamant</td><td class="just">taman : 80</td></tr>
+          <tr><td class="n">90–99</td><td class="mut">nonagénaire</td><td class="kab">atẓayan</td><td class="kabr">tatẓayant</td><td class="just">tẓayan : 90</td></tr>
+          <tr><td class="n">100–109</td><td class="mut">centenaire</td><td class="kab">imdi</td><td class="kabr">timdit</td><td class="just">imdi : 100</td></tr>
+          <tr><td class="n">110+</td><td class="mut">supercentenaire</td><td class="kab">aflimdi</td><td class="kabr">taflimdit</td><td class="just">afel + imdi</td></tr>
+          <tr><td class="n">1000+</td><td class="mut">millénaire</td><td class="kab">agiman</td><td class="kabr">tagimant</td><td class="just">agim : 1000</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="prefixes" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">12</span> Izwiren <span style="color:var(--dim)">/</span> Préfixes</p>
+    <h2 class="sec">Préfixes numéraux (maths / info)</h2>
+    <p class="sec-note">Pour les composés savants, sur le modèle des préfixes latins et grecs.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Latin</th><th>Grec</th><th>Taqbaylit</th><th>Justification / exemple</th></tr></thead>
+        <tbody>
+          <tr><td class="mut">uni-</td><td class="mut">mono-</td><td class="kab">Ayen-</td><td class="just">MAT — Ayenẓar : homogène</td></tr>
+          <tr><td class="mut">bi- / duo-</td><td class="mut">di-</td><td class="kab">Asin- / Asen-</td><td class="just">comme en mathématiques</td></tr>
+          <tr><td class="mut">tri- / ter-</td><td class="mut">tri-</td><td class="kab">Akerd-</td><td class="just">MAT — Akerdis : triangle</td></tr>
+          <tr><td class="mut">quadri- / quadru-</td><td class="mut">tétra-</td><td class="kab">Akuz-</td><td class="just">—</td></tr>
+          <tr><td class="mut">quinque- / quinti-</td><td class="mut">penta-</td><td class="kab">Asemus-</td><td class="just">MAT — Asemmusdis : pentagone</td></tr>
+          <tr><td class="mut">octa- / octo-</td><td class="mut">octa-</td><td class="kab">Atam-</td><td class="just">Atamḍis : octogone · Atamḍan : octet (INFO)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section id="codage" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">13</span> Asettengel <span style="color:var(--dim)">/</span> Codage</p>
+    <h2 class="sec">Codage informatique (bases)</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Base</th><th>Taqbaylit</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td class="mut">binaire (base 2)</td><td class="kab">Imisin</td><td class="just">MAT, INFO</td></tr>
+          <tr><td class="mut">octal (base 8)</td><td class="kab">Atamḍan</td><td class="just">INFO · tam + amḍan</td></tr>
+          <tr><td class="mut">nonaire (base 9)</td><td class="mut">—</td><td class="just">non renseigné</td></tr>
+          <tr><td class="mut">décimal (base 10)</td><td class="kab">Amrawan</td><td class="just">selon Ṣabiḥ</td></tr>
+          <tr><td class="mut">hexadécimal (base 16)</td><td class="kab">Asḍisamrawan</td><td class="just">sḍis (6) + mraw (10) · INFO</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ANNEXES -->
+<section id="annexes" class="annex reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">A1</span> Annexe <span style="color:var(--dim)">/</span> État de l'art</p>
+    <h2 class="sec">11–19 ailleurs &amp; emprunts arabes en kabyle</h2>
+    <p class="sec-note">En arabe, les dizaines = « unité + dix ». En français, 17/18/19 suivent « dix-unité ». Pour les autres&nbsp;: un seul terme.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Num.</th><th>Français</th><th>Anglais</th><th>Kabyle (emprunt arabe)</th></tr></thead>
+        <tbody>
+          <tr><td class="n">10</td><td class="mut">dix</td><td class="mut">ten</td><td class="kab">ɛecṛa</td></tr>
+          <tr><td class="n">11</td><td class="mut">onze</td><td class="mut">eleven</td><td class="kab">Ḥdac</td></tr>
+          <tr><td class="n">12</td><td class="mut">douze</td><td class="mut">twelve</td><td class="kab">Tnac</td></tr>
+          <tr><td class="n">13</td><td class="mut">treize</td><td class="mut">thirteen</td><td class="kab">Telṭac</td></tr>
+          <tr><td class="n">14</td><td class="mut">quatorze</td><td class="mut">fourteen</td><td class="kab">Ṛvaɛtac</td></tr>
+          <tr><td class="n">15</td><td class="mut">quinze</td><td class="mut">fifteen</td><td class="kab">Tmenṭac <span class="just">(usuel : Xemsṭac)</span></td></tr>
+          <tr><td class="n">16</td><td class="mut">seize</td><td class="mut">sixteen</td><td class="kab">Setṭac</td></tr>
+          <tr><td class="n">17</td><td class="mut">dix-sept</td><td class="mut">seventeen</td><td class="kab">Svaɛtac</td></tr>
+          <tr><td class="n">18</td><td class="mut">dix-huit</td><td class="mut">eighteen</td><td class="kab">Tmenṭac</td></tr>
+          <tr><td class="n">19</td><td class="mut">dix-neuf</td><td class="mut">nineteen</td><td class="kab">Tṣaɛtac</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="sec-eyebrow" style="margin-top:40px"><span class="num">A2</span> Annexe <span style="color:var(--dim)">/</span> État de l'art</p>
+    <h2 class="sec">Dizaines 10–90 en berbère &amp; simplifications</h2>
+    <p class="sec-note">Colonne « plus simple » = suppression des prépositions « n » et « d ». Dernière colonne = propositions Wikipédia.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Num.</th><th>Écriture [4]</th><th>Plus simple</th><th>Proposition (Wikipédia)</th></tr></thead>
+        <tbody>
+          <tr><td class="n">10</td><td class="mut">mraw / mrawt</td><td class="mut">mraw</td><td class="kab">mraw</td></tr>
+          <tr><td class="n">20</td><td class="mut">snat n tmerwin</td><td class="mut">sin-mraw</td><td class="kab">simraw / sinmar</td></tr>
+          <tr><td class="n">30</td><td class="mut">kṛaḍet n tmerwin</td><td class="mut">kṛaḍ-mraw</td><td class="kab">kṛamraw / carmar</td></tr>
+          <tr><td class="n">40</td><td class="mut">ukuẓet n tmerwin</td><td class="mut">ukuẓ-mraw</td><td class="kab">kkomraw / kozmar</td></tr>
+          <tr><td class="n">50</td><td class="mut">semmuset n tmerwin</td><td class="mut">semmus-mraw</td><td class="kab">semmumraw / semmar</td></tr>
+          <tr><td class="n">60</td><td class="mut">sḍiset n tmerwin</td><td class="mut">sḍis-mraw</td><td class="kab">sḍimraw</td></tr>
+          <tr><td class="n">70</td><td class="mut">ṣatet n tmerwin</td><td class="mut">ṣa-mraw</td><td class="kab">samraw / sahmar</td></tr>
+          <tr><td class="n">80</td><td class="mut">ṭamet n tmerwin</td><td class="mut">ṭam-mraw</td><td class="kab">tamraw / tammar</td></tr>
+          <tr><td class="n">90</td><td class="mut">tẓatet n tmerwin</td><td class="mut">tẓa-mraw</td><td class="kab">tẓamraw / tismar</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="sec-eyebrow" style="margin-top:40px"><span class="num">A3</span> Annexe <span style="color:var(--dim)">/</span> État de l'art</p>
+    <h2 class="sec">Cardinaux 1–10 : comparaison panberbère</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>No</th><th>Kabilia</th><th>Canarias</th><th>Djerba/Nefusa</th><th>Tašelḥit</th><th>Ahaggar</th><th>Mzab</th><th>Zenâga</th></tr></thead>
+        <tbody>
+          <tr><td class="n">1</td><td class="mut">yiwen/yiwet</td><td class="mut">nait</td><td class="mut">jjen/ujun</td><td class="mut">yan/yat</td><td class="mut">iyen/iyyet</td><td class="mut">iggen/igget</td><td class="mut">yun/yut</td></tr>
+          <tr><td class="n">2</td><td class="mut">sin/snat</td><td class="mut">smetti</td><td class="mut">sen/sent</td><td class="mut">sin/senat</td><td class="mut">sin/senatet</td><td class="mut">sen/senet</td><td class="mut">šnen/šenaneɣ</td></tr>
+          <tr><td class="n">3</td><td class="mut">tlata</td><td class="mut">amelotti</td><td class="mut">šared/šareɣ</td><td class="mut">kraḍ/kraṭ</td><td class="mut">keraḍ/keradet</td><td class="mut">šared/šaret</td><td class="mut">karad/keraḍet</td></tr>
+          <tr><td class="n">4</td><td class="mut">ṛebɛa</td><td class="mut">acodetti</td><td class="mut">šaret d ijjen</td><td class="mut">kuz/kusṭ</td><td class="mut">okkoz/okkozet</td><td class="mut">okkoz/okkozet</td><td class="mut">akkut/akkuḍet</td></tr>
+          <tr><td class="n">5</td><td class="mut">xemsa</td><td class="mut">simusetti</td><td class="mut">afus/ufes</td><td class="mut">semmus/semmust</td><td class="mut">semmus/semmuset</td><td class="mut">semmes/semmeset</td><td class="mut">šemuš/šemušet</td></tr>
+          <tr><td class="n">6</td><td class="mut">settsa</td><td class="mut">sesetti</td><td class="mut">afus d ijjen</td><td class="mut">seḍis/seḍist</td><td class="mut">sedis/sediset</td><td class="mut">sez/sesset</td><td class="mut">šudeš/šudešet</td></tr>
+          <tr><td class="n">7</td><td class="mut">sebɛa</td><td class="mut">satti</td><td class="mut">sebyat</td><td class="mut">sa/sat</td><td class="mut">esaa/essaat</td><td class="mut">saa/saat</td><td class="mut">eššeh-išši/eššadet</td></tr>
+          <tr><td class="n">8</td><td class="mut">tmenya</td><td class="mut">tamatti</td><td class="mut">attam</td><td class="mut">ttam/tamt</td><td class="mut">ettam/ettamet</td><td class="mut">tam/tamet</td><td class="mut">ittem/ittamet</td></tr>
+          <tr><td class="n">9</td><td class="mut">tesɛa</td><td class="mut">alda morana</td><td class="mut">attam d ijjen</td><td class="mut">tẓa/tẓat</td><td class="mut">tezzaa/tezzaat</td><td class="mut">tes/tesset</td><td class="mut">ṛuṛa/ṛudaet</td></tr>
+          <tr><td class="n">10</td><td class="mut">ɛešra</td><td class="mut">maravaaqardach</td><td class="mut">mraw/mrawt</td><td class="mut">mraw/mrawt</td><td class="mut">mraw/mrawet</td><td class="mut">—</td><td class="mut">mereg/mereget</td></tr>
+          <tr><td class="n">20</td><td class="mut">ɛšrin</td><td class="mut">ɛešrin</td><td class="mut">snatet tmerwin</td><td class="mut">senet tmerwin</td><td class="mut">šen d temerin</td><td class="mut">—</td><td class="mut">—</td></tr>
+          <tr><td class="n">100</td><td class="mut">—</td><td class="mut">—</td><td class="mut">mya</td><td class="mut">mya</td><td class="mut">twinest</td><td class="mut">twinest</td><td class="mut">temadi</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- MEMO -->
+<section id="memo" class="reveal">
+  <div class="wrap">
+    <p class="sec-eyebrow"><span class="num">∑</span> Asquccel <span style="color:var(--dim)">/</span> Mémo des règles</p>
+    <h2 class="sec">Synthèse des règles</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Règle</th></tr></thead>
+        <tbody>
+          <tr><td class="n">R1</td><td class="mut">Unités 1–9 : genre conservé (m. / f. en -et/-t). 4 = kuẓ (pas ukuẓ), 8 = tam (pas ṭam).</td></tr>
+          <tr><td class="n">R2</td><td class="mut">10 = mraw (f. mrawet).</td></tr>
+          <tr><td class="n">R3</td><td class="mut">11–19 = « mr- » + racine de l'unité, mot unique invariable.</td></tr>
+          <tr><td class="n">R4</td><td class="mut">20–90 = racine de l'unité + « -an », invariable. 10 = mraw (irrégulier).</td></tr>
+          <tr><td class="n">R5</td><td class="mut">21–99 = dizaine + unité, sans « d » ; genre sur l'unité finale.</td></tr>
+          <tr><td class="n">R6</td><td class="mut">100 = imdi (pl. imda) ; n×100 = &lt;n&gt; imda.</td></tr>
+          <tr><td class="n">R7</td><td class="mut">1000 = agim (pl. igiman) ; n×1000 = &lt;n&gt; igiman.</td></tr>
+          <tr><td class="n">R8</td><td class="mut">10⁶ = amelyun (pl. imelyunen) ; 10⁹ = amelyar (pl. imelyaren).</td></tr>
+          <tr><td class="n">R9</td><td class="mut">Composition : magnitudes décroissantes, séparées par une espace, sans connecteur.</td></tr>
+          <tr><td class="n">R10</td><td class="mut">Ordinaux : Wiss (m.) / Tiss (f.) + cardinal ; féminin gardé jusqu'à 9.</td></tr>
+          <tr><td class="n">R11</td><td class="mut">Multiplicatifs : as- + cardinal OU cardinal + -gat.</td></tr>
+          <tr><td class="n">R12</td><td class="mut">Collectifs : ta…ant (de la dizaine).</td></tr>
+          <tr><td class="n">R13</td><td class="mut">Fractions : af- + cardinal, pluriel i…a…</td></tr>
+          <tr><td class="n">R14</td><td class="mut">Âges : a- + dizaine (m.) / ta…ant (f.).</td></tr>
+          <tr><td class="n">R15</td><td class="mut">Préfixes : Ayen-(1), Asin-/Asen-(2), Akerd-(3), Akuz-(4), Asemus-(5), Atam-(8).</td></tr>
+          <tr><td class="n">R16</td><td class="mut">Bases : binaire Imisin, octal Atamḍan, décimal Amrawan, hexadécimal Asḍisamrawan.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>ⵣ &nbsp; Anggay amaynut n umḍan i tutlayt taqbaylit</span>
+    <span>Récapitulatif de la proposition · synthèse des 20 diapositives</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var UM = ["ilem","yiwen","sin","kṛaḍ","kuẓ","semmus","sḍis","sa","tam","tẓa"];
+  var UF = ["ilem","yiwet","snat","kṛaḍet","kuẓet","semmuset","sḍiset","sat","tamet","tẓat"];
+  var TEEN = ["mraw","mrayan","mrasin","mrakraḍ","mrakuẓ","mrasmus","mrasḍis","mrasa","mratam","mratẓa"];
+  var DEC = {2:"snan",3:"kṛaḍan",4:"kuẓan",5:"smusan",6:"sḍisan",7:"sayan",8:"taman",9:"tẓayan"};
+  var SCALES = [
+    {div:1e9, sing:"amelyar", plur:"imelyaren"},
+    {div:1e6, sing:"amelyun", plur:"imelyunen"},
+    {div:1e3, sing:"agim",    plur:"igiman"}
+  ];
+  var MAX = 999999999999; // < 1e12
+
+  function unit(n,g){ return g==='f' ? UF[n] : UM[n]; }
+
+  function under100(n,g){
+    if(n<10) return unit(n,g);
+    if(n===10) return g==='f' ? "mrawet" : "mraw"; // R2 : genre conservé jusqu'à 10
+    if(n<20) return TEEN[n-10];
+    var t=Math.floor(n/10), u=n%10;
+    var w=DEC[t];
+    if(u>0) w += " "+unit(u,g);
+    return w;
+  }
+  function under1000(n,g){
+    if(n<100) return under100(n,g);
+    var h=Math.floor(n/100), r=n%100, parts=[];
+    parts.push(h===1 ? "imdi" : unit(h,'m')+" imda");
+    if(r>0) parts.push(under100(r,g));
+    return parts.join(" ");
+  }
+  function render(n,g){
+    n=Math.floor(n);
+    if(n===0) return unit(0,g);
+    var parts=[], rem=n, i, c, s;
+    for(i=0;i<SCALES.length;i++){
+      s=SCALES[i]; c=Math.floor(rem/s.div);
+      if(c>0){ parts.push(c===1 ? s.sing : under1000(c,'m')+" "+s.plur); rem=rem%s.div; }
+    }
+    if(rem>0) parts.push(under1000(rem,g));
+    return parts.join(" ");
+  }
+  function fmt(n){ return n.toLocaleString('fr-FR').replace(/[\u00A0\u202F]/g,' '); }
+
+  function breakdown(n,g){
+    var out=[], rem=n, i, c, s;
+    if(n===0){ out.push({l:"0", f:"ilem"}); return out; }
+    for(i=0;i<SCALES.length;i++){
+      s=SCALES[i]; c=Math.floor(rem/s.div);
+      if(c>0){ out.push({l:fmt(c)+" × "+fmt(s.div), f:(c===1?s.sing:under1000(c,'m')+" "+s.plur)}); rem=rem%s.div; }
+    }
+    if(rem>0){
+      var h=Math.floor(rem/100), r=rem%100;
+      if(h>0) out.push({l:fmt(h*100), f:(h===1?"imdi":unit(h,'m')+" imda")});
+      if(r>0) out.push({l:String(r), f:under100(r,g)});
+    }
+    return out;
+  }
+
+  var input=document.getElementById('numin');
+  var out=document.getElementById('kabout');
+  var bd=document.getElementById('bd');
+  var gm=document.getElementById('gm'), gf=document.getElementById('gf');
+  var gender='m';
+
+  function update(){
+    var raw=(input.value||'').replace(/[\s.,]/g,'');
+    bd.innerHTML='';
+    if(raw===''){ out.textContent='—'; out.className='kab'; return; }
+    if(!/^\d+$/.test(raw)){ out.textContent='entrer un entier ≥ 0'; out.className='kab err'; return; }
+    var n=Number(raw);
+    if(n>MAX){ out.textContent='maximum : '+fmt(MAX)+' (amelyar)'; out.className='kab err'; return; }
+    out.textContent=render(n,gender);
+    out.className='kab';
+    var parts=breakdown(n,gender), html='';
+    if(parts.length>1){
+      for(var i=0;i<parts.length;i++){
+        html += '<span class="bd"><b>'+parts[i].l+'</b><span class="arw">→</span><em>'+parts[i].f+'</em></span>';
+      }
+      bd.innerHTML=html;
+    }
+  }
+  function setGender(g){
+    gender=g;
+    gm.classList.toggle('on', g==='m');
+    gf.classList.toggle('on', g==='f');
+    update();
+  }
+  input.addEventListener('input', update);
+  gm.addEventListener('click', function(){ setGender('m'); });
+  gf.addEventListener('click', function(){ setGender('f'); });
+  document.querySelectorAll('.examples button').forEach(function(b){
+    b.addEventListener('click', function(){ input.value=b.getAttribute('data-n'); update(); input.focus(); });
+  });
+  update();
+
+  // subtle scroll reveal
+  if(!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{threshold:.08});
+    document.querySelectorAll('.reveal').forEach(function(s){ io.observe(s); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(s){ s.classList.add('in'); });
+  }
+})();
+</script>
+</body>
+</html>
